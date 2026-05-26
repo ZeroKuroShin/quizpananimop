@@ -49,31 +49,6 @@ const questionBank = {
     ]
 };
 
-// ==========================================
-// STATE MANAGEMENT (SIMULASI CLIENT-SIDE CO-OP)
-// ==========================================
-let gameState = {
-    role: null, // 'admin' atau 'player'
-    currentUser: "",
-    gameCode: "482910", // Default Code
-    mode: "solo", // 'solo' atau 'team'
-    category: "Matematika",
-    players: [], // Array objek player: { name: string, isReady: bool, score: int, team: string }
-    buzzerWinner: null,
-    timerInterval: null,
-    timeLeft: 10,
-    currentQuestionIndex: null
-};
-
-// Auto-load mockup data pemain pasif agar testing lokal terasa ramai (Maksimal 12)
-function loadMockupPlayers() {
-    gameState.players = [
-        { name: "Andi", isReady: true, score: 0, team: "Tim A" },
-        { name: "Budi", isReady: true, score: 0, team: "Tim A" },
-        { name: "Citra", isReady: false, score: 0, team: "Tim B" },
-        { name: "Dewi", isReady: false, score: 0, team: "Tim B" }
-    ];
-}
 loadMockupPlayers();
 
 // ==========================================
