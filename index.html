@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCoop - Web Kuis Interaktif</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .hidden-screen { display: none; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <div id="screen-auth" class="flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">
+            <h1 class="text-3xl font-extrabold text-center mb-6 text-indigo-400 tracking-wide">QUIZ<span class="text-emerald-400">COOP</span></h1>
+            
+            <div class="flex mb-6 bg-slate-900 p-1 rounded-lg">
+                <button id="tab-player" class="w-1/2 py-2 text-center rounded-md bg-indigo-600 font-medium transition" onclick="switchAuthTab('player')">Player</button>
+                <button id="tab-admin" class="w-1/2 py-2 text-center rounded-md text-slate-400 font-medium transition" onclick="switchAuthTab('admin')">Admin</button>
+            </div>
+
+            <div id="form-player" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" id="p-username" placeholder="Masukkan nama kamu" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Kode Game (6 Digit)</label>
+                    <input type="number" id="p-code" placeholder="Contoh: 123456" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="joinAsPlayer()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition mt-2">Masuk Game</button>
+            </div>
+
+            <div id="form-admin" class="space-y-4 hidden-screen">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Admin Username</label>
+                    <input type="text" id="a-username" placeholder="Username Admin" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="a-password" placeholder="••••••••" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="loginAsAdmin()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-lg transition mt-2">Login Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-lobby" class="hidden-screen max-w-4xl mx-auto p-6 min-h-screen flex flex-col justify-between">
+        <div class="space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold">Lobby Ruang Kuis</h2>
+                    <p class="text-slate-400 text-sm">Menunggu pemain siap...</p>
+                </div>
+                <div class="bg-indigo-950 border border-indigo-500 px-6 py-2 rounded-xl text-center">
+                    <span class="text-xs text-indigo-300 block uppercase font-bold tracking-wider">Kode Game</span>
+                    <span id="display-game-code" class="text-2xl font-black text-indigo-400">000000</span>
+                </div>
+            </div>
+
+            <div id="admin-config" class="hidden-screen bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+                <h3 class="text-lg font-semibold text-indigo-400">Pengaturan Game (Admin)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm mb-1 text-slate-300">Mode Game</label>
+                        <select id="game-mode" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 focus:outline-none">
+                            <option value="solo">Get The Point (Solo)</option>
+                            <option value="team">Team Point (Regu 3-4 Player)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 text-slate-300">Kategori Soal</label>
+                        <select id="game-category" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 focus:outline-none">
+                            <option value="Matematika">Matematika</option>
+                            <option value="Pengetahuan Umum Dunia">Pengetahuan Umum Dunia</option>
+                            <option value="Pengetahuan IPA">Pengetahuan IPA</option>
+                            <option value="Pengetahuan Sosial">Pengetahuan Sosial</option>
+                            <option value="Lagu">Lagu</option>
+                            <option value="Sejarah Dunia">Sejarah Dunia</option>
+                            <option value="Fun Fact">Fun Fact</option>
+                            <option value="Geologi">Geologi</option>
+                            <option value="Bisnis">Bisnis</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="startGame()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition shadow-lg">MULAI GAME 🚀</button>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Peserta Terhubung (<span id="participant-count">0</span>/12)</h3>
+                </div>
+                <div id="lobby-participants-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    </div>
+            </div>
+        </div>
+
+        <div id="player-ready-zone" class="hidden-screen mt-6">
+            <button id="btn-ready" onclick="toggleReady()" class="w-full py-4 bg-amber-600 hover:bg-amber-500 font-bold rounded-xl transition text-lg shadow-lg">SET READY 👍</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="hidden-screen max-w-5xl mx-auto p-6 min-h-screen flex flex-col justify-between">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-4">
+            <div>
+                <span id="game-badge-mode" class="px-3 py-1 bg-indigo-900 border border-indigo-700 text-indigo-300 rounded-full text-xs font-bold uppercase">Solo</span>
+                <h2 id="game-display-category" class="text-xl font-bold mt-1">Kategori: -</h2>
+            </div>
+            <div class="text-center bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Waktu Buzzer</p>
+                <p id="game-timer" class="text-3xl font-black text-rose-500">10s</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start mb-auto">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-md relative min-h-[200px] flex flex-col justify-center">
+                    <p class="text-xs uppercase font-bold text-indigo-400 mb-2">Pertanyaan yang ter-generate:</p>
+                    <p id="display-question" class="text-xl md:text-2xl font-medium leading-relaxed">Menunggu admin men-generate soal...</p>
+                    
+                    <div id="admin-answer-box" class="hidden-screen mt-6 p-3 bg-emerald-950/50 border border-emerald-800 rounded-lg">
+                        <span class="text-xs font-bold text-emerald-400 block uppercase">Kunci Jawaban (Ringkas):</span>
+                        <p id="display-answer" class="text-emerald-300 font-semibold"></p>
+                    </div>
+                </div>
+
+                <div id="zone-player-game" class="hidden-screen">
+                    <button id="btn-buzzer" onclick="hitBuzzer()" class="w-full py-12 bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-black text-3xl rounded-2xl shadow-2xl border-b-8 border-rose-800 uppercase tracking-widest transition-all">
+                        JAWAB! ✋
+                    </button>
+                </div>
+
+                <div id="zone-admin-game" class="hidden-screen bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4">
+                    <div class="flex gap-3">
+                        <button onclick="generateNextQuestion()" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-lg transition text-center">🔄 Generate Soal Acak</button>
+                    </div>
+                    
+                    <div class="p-4 bg-slate-900 rounded-xl text-center border border-slate-700">
+                        <p class="text-sm text-slate-400">Pemain Menekan Buzzer:</p>
+                        <p id="buzzer-winner" class="text-2xl font-black text-amber-400 mt-1">- Tidak Ada -</p>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="evaluateAnswer(true)" class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition text-lg">✅ BENAR (+10)</button>
+                        <button onclick="evaluateAnswer(false)" class="flex-1 py-4 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg transition text-lg">❌ SALAH (-10)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-md">
+                <h3 class="text-lg font-bold mb-4 border-b border-slate-700 pb-2 flex items-center justify-between">
+                    <span>🏆 Live Scoreboard</span>
+                    <span id="admin-badge-view" class="hidden-screen text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded">Otoritas Admin Active</span>
+                </h3>
+                <div id="game-scoreboard-list" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
