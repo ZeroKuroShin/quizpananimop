@@ -89,7 +89,12 @@
             </div>
 
             <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                <h3 class="text-lg font-semibold mb-4">Peserta Terhubung (<span id="participant-count">0</span>/12)</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Peserta Terhubung (<span id="participant-count">0</span>/12)</h3>
+                    <button id="btn-refresh-peserta" onclick="requestRejoinFromPlayers()" class="hidden-screen px-4 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                        🔄 Muat Ulang Peserta
+                    </button>
+                </div>
                 <div id="lobby-participants-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     </div>
             </div>
